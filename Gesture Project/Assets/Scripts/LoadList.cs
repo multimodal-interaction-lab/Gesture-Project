@@ -51,6 +51,7 @@ public class LoadList : MonoBehaviour
             stream.Close();
 
             simulator.SetHandTrackingData(data);
+            simulator.RenderFrame(0);
             SetupSlider(data);
             playButton.GetComponent<SimPlayPause>().SetPaused();
 
