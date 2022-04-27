@@ -155,12 +155,18 @@ public class Recorder : MonoBehaviour
     public void SavePressed()
     {
         SaveData();
+        saveMenu.SetActive(false);
+        recordMenu.SetActive(true);
+        simulator.SetActive(false);
+        leapRig.SetActive(true);
     }
 
     public void SaveData()
     {
+        string defaultfileName = "trackingData";
+        string fileNameInput = fileNameEntry.text == "" ? defaultfileName : fileNameEntry.text;
         BinaryFormatter formatter = new BinaryFormatter();
-        string path = Application.dataPath + "/RecorderOutput/" + fileNameEntry.text + ".trackdat";
+        string path = Application.dataPath + "/RecorderOutput/" + fileNameInput + ".trackdat";
         FileStream stream;
 
         if (File.Exists(path))
@@ -168,7 +174,7 @@ public class Recorder : MonoBehaviour
             int offset = 1;
             do
             {
-                path = Application.dataPath + "/RecorderOutput/" + fileNameEntry.text + " (" + offset + ")" + ".trackdat";
+                path = Application.dataPath + "/RecorderOutput/" + fileNameInput + " (" + offset + ")" + ".trackdat";
                 offset++;
             } while (File.Exists(path));
         }
@@ -178,6 +184,15 @@ public class Recorder : MonoBehaviour
 
         formatter.Serialize(stream, data);
         stream.Close();
+    }
+
+    public void CancelPressed()
+    {
+        saveMenu.SetActive(false);
+        recordMenu.SetActive(true);
+        simulator.SetActive(false);
+        leapRig.SetActive(true);
+
     }
 
 }

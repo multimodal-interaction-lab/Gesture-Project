@@ -51,8 +51,12 @@ public class Simulator : MonoBehaviour
         
     }
 
-    void RenderFrame(int frame)
+    public void RenderFrame(int frame)
     {
+        if(currentFrame != frame)
+        {
+            currentFrame = frame;
+        }
         int frameToRender = frame % (data.endFrame - data.startFrame) + data.startFrame;
         foreach(TrackingPoint point in trackingPoints)
         {
