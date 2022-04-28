@@ -13,6 +13,11 @@ public class SimPlayPause : MonoBehaviour
     [SerializeField]
     Sprite pauseGraphic;
 
+    [SerializeField]
+    FrameMarker startMarker;
+    [SerializeField]
+    FrameMarker endMarker;
+
     bool isPlaying;
 
     private void Start()
@@ -25,7 +30,7 @@ public class SimPlayPause : MonoBehaviour
     {
         if (isPlaying)
         {
-            if(simSlider.value == simSlider.maxValue)
+            if(simSlider.value == simSlider.maxValue || (endMarker.GetComponent<Image>().enabled && (simSlider.value == endMarker.frame)))
             {
                 TogglePlayPause();
             } else
@@ -47,9 +52,16 @@ public class SimPlayPause : MonoBehaviour
             GetComponent<Image>().sprite = playGraphic;
         }
 
-        if(isPlaying && simSlider.value == simSlider.maxValue)
+        if(isPlaying && simSlider.value == simSlider.maxValue || (endMarker.GetComponent<Image>().enabled && (simSlider.value == endMarker.frame)))
         {
-            simSlider.value = 0;
+            if (!startMarker.GetComponent<Image>().enabled)
+            {
+                simSlider.value = 0;
+            } else
+            {
+                simSlider.value = startMarker.frame;
+            }
+            
         }
     }
 

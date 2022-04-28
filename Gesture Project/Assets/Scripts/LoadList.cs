@@ -16,6 +16,10 @@ public class LoadList : MonoBehaviour
     Slider frameSlider;
     [SerializeField]
     Button playButton;
+    [SerializeField]
+    GameObject frameOptionsMenu;
+    [SerializeField]
+    List<FrameMarker> markers;
     // Start is called before the first frame update
     void Start()
     {
@@ -57,6 +61,14 @@ public class LoadList : MonoBehaviour
 
             frameSlider.interactable = true;
             playButton.interactable = true;
+            foreach(Button btn in frameOptionsMenu.GetComponentsInChildren<Button>())
+            {
+                btn.interactable = true;
+            }
+            foreach(FrameMarker marker in markers)
+            {
+                marker.GetComponent<Image>().enabled = false;
+            }
         }
         else
         {
