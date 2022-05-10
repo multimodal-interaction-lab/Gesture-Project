@@ -25,7 +25,7 @@ public class Simulator : MonoBehaviour
     }
 
     [SerializeField]
-    List<TrackingPoint> trackingPoints;
+    public List<TrackingPoint> trackingPoints;
 
     // Start is called before the first frame update
     void Start()
@@ -206,5 +206,10 @@ public class Simulator : MonoBehaviour
     public void SetHandTrackingData(HandTrackingData data)
     {
         this.data = data;
+    }
+
+    public HandTrackingData GetHandTrackingData()
+    {
+        return data;
     }
 }

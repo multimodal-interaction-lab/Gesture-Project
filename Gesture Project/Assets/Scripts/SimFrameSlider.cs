@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class SimFrameSlider : MonoBehaviour
 {
@@ -10,6 +11,8 @@ public class SimFrameSlider : MonoBehaviour
     Slider slider;
     [SerializeField]
     Simulator sim;
+    [SerializeField]
+    TextMeshProUGUI frameText;
 
     private void Start()
     {
@@ -32,6 +35,10 @@ public class SimFrameSlider : MonoBehaviour
     {
         int frame = (int)slider.value;
         sim.RenderFrame(frame);
+        if(frameText != null)
+        {
+            frameText.text = "Frame: " + frame;
+        }
 
     }
 }
