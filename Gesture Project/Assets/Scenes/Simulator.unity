@@ -2783,7 +2783,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 951305927}
   m_OnClick:
     m_PersistentCalls:
@@ -4056,7 +4056,9 @@ MonoBehaviour:
   frameSlider: {fileID: 521713067}
   playButton: {fileID: 658158659}
   frameOptionsMenu: {fileID: 309051862}
-  markers: []
+  exportMenu: {fileID: 1763134523}
+  startMarker: {fileID: 254099457}
+  endMarker: {fileID: 1576903129}
 --- !u!1 &1540285234
 GameObject:
   m_ObjectHideFlags: 0
@@ -4253,6 +4255,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1576903126}
   m_CullTransparentMesh: 1
+--- !u!4 &1590460423 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8704373797904409641, guid: e8de992c4993110459ef532941d6b8ce, type: 3}
+  m_PrefabInstance: {fileID: 982599435}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1708093897
 GameObject:
   m_ObjectHideFlags: 0
@@ -4477,10 +4484,19 @@ MonoBehaviour:
   nameInput: {fileID: 896885202}
   startMarker: {fileID: 254099457}
   endMarker: {fileID: 1576903129}
-  handData:
-    startFrame: 0
-    endFrame: 0
   sim: {fileID: 296930860}
+  exportButton: {fileID: 951305926}
+  simSlider: {fileID: 521713067}
+  leftPalm:
+    hand: 1
+    finger: 5
+    joint: 5
+    transform: {fileID: 1590460423}
+  rightPalm:
+    hand: 0
+    finger: 5
+    joint: 5
+    transform: {fileID: 1981580457}
 --- !u!1 &1820291820
 GameObject:
   m_ObjectHideFlags: 0
@@ -4750,6 +4766,11 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!4 &1981580457 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8704373796206877082, guid: e8de992c4993110459ef532941d6b8ce, type: 3}
+  m_PrefabInstance: {fileID: 982599435}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2022967432
 GameObject:
   m_ObjectHideFlags: 0

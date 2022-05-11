@@ -19,7 +19,11 @@ public class LoadList : MonoBehaviour
     [SerializeField]
     GameObject frameOptionsMenu;
     [SerializeField]
-    List<FrameMarker> markers;
+    GameObject exportMenu;
+    [SerializeField]
+    FrameMarker startMarker;
+    [SerializeField]
+    FrameMarker endMarker;
     // Start is called before the first frame update
     void Start()
     {
@@ -65,10 +69,14 @@ public class LoadList : MonoBehaviour
             {
                 btn.interactable = true;
             }
-            foreach(FrameMarker marker in markers)
+            foreach (Button btn in exportMenu.GetComponentsInChildren<Button>())
             {
-                marker.GetComponent<Image>().enabled = false;
+                btn.interactable = true;
             }
+            startMarker.GetComponent<Image>().enabled = false;
+            startMarker.frame = 0;
+            endMarker.GetComponent<Image>().enabled = false;
+            endMarker.frame = (data.endFrame - data.startFrame) - 1;
         }
         else
         {

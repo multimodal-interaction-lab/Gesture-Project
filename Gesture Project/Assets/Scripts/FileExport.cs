@@ -5,6 +5,7 @@ using TMPro;
 using System.IO;
 using System.Text;
 using System;
+using UnityEngine.UI;
 
 public class FileExport : MonoBehaviour
 {
@@ -14,9 +15,17 @@ public class FileExport : MonoBehaviour
     FrameMarker startMarker;
     [SerializeField]
     FrameMarker endMarker;
-    public HandTrackingData handData;
     [SerializeField]
     Simulator sim;
+    [SerializeField]
+    Button exportButton;
+    [SerializeField]
+    Slider simSlider;
+    [SerializeField]
+    Simulator.TrackingPoint leftPalm;
+    [SerializeField]
+    Simulator.TrackingPoint rightPalm;
+    StreamWriter stream;
 
 
     enum Features
@@ -34,15 +43,15 @@ public class FileExport : MonoBehaviour
 
     private void Start()
     {
-        handData = sim.GetHandTrackingData();
     }
 
     public void ExportFile()
     {
+        exportButton.interactable = false;
         string defaultfileName = "gestureData";
         string fileNameInput = nameInput.text == "" ? defaultfileName : nameInput.text;
         string path = Application.dataPath + "/SimulatorOutput/" + fileNameInput + ".csv";
-        StreamWriter stream;
+       
 
         if (File.Exists(path))
         {
@@ -71,16 +80,33 @@ public class FileExport : MonoBehaviour
         stream.WriteLine(headerToWrite);
 
 
-
-        stream.Close();
+        StartCoroutine(ExportFeatureData());
+        
 
     }
 
+    IEnumerator ExportFeatureData()
+    {
+        int frame = 0;
+        for (int i = startMarker.frame; i <= (endMarker.frame - startMarker.frame) + startMarker.frame; i++)
+        {
+            simSlider.value = i;
+            stream.WriteLine(frame + "," + GetDataString(i));
+            frame++;
+            yield return new WaitForFixedUpdate();
+        }
+
+
+
+
+        stream.Close();
+        exportButton.interactable = true;
+    }
 
     string GetHeaderString(HandTrackingData.Hand hand , HandTrackingData.Finger finger, HandTrackingData.Joint joint)
     {
         string ret = "";
-        string jointLabel = (hand == HandTrackingData.Hand.Left ? "L_" : "R_") + (finger != HandTrackingData.Finger.None ? finger.ToString() : "Palm") + (finger != HandTrackingData.Finger.None ? "_" + joint.ToString() : "");
+        string jointLabel = HandTrackingData.EnumsToString(hand, finger, joint);
         Array featureValues = Enum.GetValues(typeof(Features));
 
         foreach (Features val in featureValues)
@@ -92,4 +118,180 @@ public class FileExport : MonoBehaviour
 
         return ret;
     }
+
+    string GetDataString(int frame)
+    {
+        string ret = "";
+        Array featureValues = Enum.GetValues(typeof(Features));
+
+        foreach (Simulator.TrackingPoint point in sim.trackingPoints)
+        {
+            foreach (Features val in featureValues)
+            {
+                ret += GetFeatureVal(point, val, frame);
+                ret += ",";
+            }
+        }
+
+
+        
+        ret = ret.TrimEnd(',');
+
+        return ret;
+    }
+
+    string GetFeatureVal(Simulator.TrackingPoint point, Features feature, int frame)
+    {
+        int internalFrame = frame % (sim.data.endFrame - sim.data.startFrame) + sim.data.startFrame;
+        string ret = "";
+        string key = HandTrackingData.EnumsToString(point.hand, point.finger, point.joint);
+        switch (feature)
+        {
+            case Features.Position_X:
+                //ret += sim.data.positionData[key][internalFrame].x;
+                if(point.finger == HandTrackingData.Finger.None)
+                {
+                    ret += point.transform.position.x;
+                } else
+                {
+                    if(point.hand == HandTrackingData.Hand.Left)
+                    {
+                        ret += point.transform.position.x - leftPalm.transform.position.x;
+                    } else
+                    {
+                        ret += point.transform.position.x - rightPalm.transform.position.x;
+                    }
+                }
+                
+                break;
+            case Features.Position_Y:
+                //ret += sim.data.positionData[key][internalFrame].y;
+                if (point.finger == HandTrackingData.Finger.None)
+                {
+                    ret += point.transform.position.y;
+                }
+                else
+                {
+                    if (point.hand == HandTrackingData.Hand.Left)
+                    {
+                        ret += point.transform.position.y - leftPalm.transform.position.y;
+                    }
+                    else
+                    {
+                        ret += point.transform.position.y - rightPalm.transform.position.y;
+                    }
+                }
+                break;
+            case Features.Position_Z:
+                //ret += sim.data.positionData[key][internalFrame].z;
+                if (point.finger == HandTrackingData.Finger.None)
+                {
+                    ret += point.transform.position.z;
+                }
+                else
+                {
+                    if (point.hand == HandTrackingData.Hand.Left)
+                    {
+                        ret += point.transform.position.z - leftPalm.transform.position.z;
+                    }
+                    else
+                    {
+                        ret += point.transform.position.z - rightPalm.transform.position.z;
+                    }
+                }
+                break;
+            case Features.Direction_X:
+                /*
+                if (internalFrame < 1)
+                {
+                    ret += "?";
+                }
+                else
+                {
+                    ret += ((Vector3)sim.data.positionData[key][internalFrame] - (Vector3)sim.data.positionData[key][internalFrame - 1]).normalized.x;
+                }
+                */
+                ret += point.transform.forward.x;
+                break;
+            case Features.Direction_Y:
+                /*
+                if (internalFrame < 1)
+                {
+                    ret += "?";
+                }
+                else
+                {
+                    ret += ((Vector3)sim.data.positionData[key][internalFrame] - (Vector3)sim.data.positionData[key][internalFrame - 1]).normalized.y;
+                }
+                */
+                ret += point.transform.forward.y;
+                break;
+            case Features.Direction_Z:
+                /*
+                if (internalFrame < 1)
+                {
+                    ret += "?";
+                }
+                else
+                {
+                    ret += ((Vector3)sim.data.positionData[key][internalFrame] - (Vector3)sim.data.positionData[key][internalFrame - 1]).normalized.z;
+                }
+                */
+                ret += point.transform.forward.z;
+                break;
+            case Features.Velocity:
+                /*
+                if(internalFrame < 1)
+                {
+                    ret += "?";
+                } else
+                {
+                    ret += ((Vector3)sim.data.positionData[key][internalFrame] - (Vector3)sim.data.positionData[key][internalFrame - 1]).magnitude / Time.fixedDeltaTime;
+                }
+                */
+                if (internalFrame < 1)
+                {
+                    ret += "?";
+                }
+                else
+                {
+                    var orig = point.transform.position;
+                    point.transform.localPosition = (Vector3)sim.data.positionData[key][internalFrame - 1];
+                    var p1 = point.transform.position;
+                    ret += (orig - p1).magnitude / Time.fixedDeltaTime;
+                    point.transform.position = orig;
+                }
+                break;
+            case Features.Acceleration:
+                /*
+                if (internalFrame < 2)
+                {
+                    ret += "?";
+                }
+                else
+                {
+                    var v1 = ((Vector3)sim.data.positionData[key][internalFrame] - (Vector3)sim.data.positionData[key][internalFrame - 1]) / Time.fixedDeltaTime;
+                    var v2 = ((Vector3)sim.data.positionData[key][internalFrame - 1] - (Vector3)sim.data.positionData[key][internalFrame - 2]) / Time.fixedDeltaTime;
+                    ret += (v1 - v2).magnitude / Time.fixedDeltaTime;
+                }
+                */
+                if (internalFrame < 2)
+                {
+                    ret += "?";
+                }
+                else
+                {
+                    var orig = point.transform.position;
+                    point.transform.localPosition = (Vector3)sim.data.positionData[key][internalFrame - 1];
+                    var p1 = point.transform.position;
+                    point.transform.localPosition = (Vector3)sim.data.positionData[key][internalFrame - 2];
+                    var p2 = point.transform.position;
+                    ret += (((orig - p1) / Time.fixedDeltaTime) - ((p1 - p2) / Time.fixedDeltaTime)).magnitude / Time.fixedDeltaTime;
+                    point.transform.position = orig;
+                }
+                break;
+        }
+        return ret;
+    }
+
 }

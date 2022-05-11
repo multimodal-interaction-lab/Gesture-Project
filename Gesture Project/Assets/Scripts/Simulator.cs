@@ -9,7 +9,7 @@ public class Simulator : MonoBehaviour
     public float jointRadius;
     public float palmRadius;
     int currentFrame;
-    HandTrackingData data;
+    public HandTrackingData data;
 
     public bool isPlaying;
 
