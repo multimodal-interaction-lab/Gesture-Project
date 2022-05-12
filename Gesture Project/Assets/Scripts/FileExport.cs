@@ -20,6 +20,8 @@ public class FileExport : MonoBehaviour
     [SerializeField]
     Button exportButton;
     [SerializeField]
+    GameObject canvasObj;
+    [SerializeField]
     Slider simSlider;
     [SerializeField]
     Simulator.TrackingPoint leftPalm;
@@ -47,7 +49,11 @@ public class FileExport : MonoBehaviour
 
     public void ExportFile()
     {
-        exportButton.interactable = false;
+        //exportButton.interactable = false;
+        foreach (Selectable obj in canvasObj.GetComponentsInChildren<Selectable>())
+        {
+            obj.interactable = false;
+        }
         string defaultfileName = "gestureData";
         string fileNameInput = nameInput.text == "" ? defaultfileName : nameInput.text;
         string path = Application.dataPath + "/SimulatorOutput/" + fileNameInput + ".csv";
@@ -100,7 +106,11 @@ public class FileExport : MonoBehaviour
 
 
         stream.Close();
-        exportButton.interactable = true;
+        foreach(Selectable obj in canvasObj.GetComponentsInChildren<Selectable>())
+        {
+            obj.interactable = true;
+        }
+        //exportButton.interactable = true;
     }
 
     string GetHeaderString(HandTrackingData.Hand hand , HandTrackingData.Finger finger, HandTrackingData.Joint joint)

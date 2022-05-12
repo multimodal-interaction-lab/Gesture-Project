@@ -4486,6 +4486,7 @@ MonoBehaviour:
   endMarker: {fileID: 1576903129}
   sim: {fileID: 296930860}
   exportButton: {fileID: 951305926}
+  canvasObj: {fileID: 920802154}
   simSlider: {fileID: 521713067}
   leftPalm:
     hand: 1
