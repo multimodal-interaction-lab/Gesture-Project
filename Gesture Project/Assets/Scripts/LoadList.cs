@@ -15,6 +15,8 @@ public class LoadList : MonoBehaviour
     [SerializeField]
     Slider frameSlider;
     [SerializeField]
+    RectTransform sliderHandle;
+    [SerializeField]
     Button playButton;
     [SerializeField]
     GameObject frameOptionsMenu;
@@ -24,6 +26,17 @@ public class LoadList : MonoBehaviour
     FrameMarker startMarker;
     [SerializeField]
     FrameMarker endMarker;
+
+    [SerializeField]
+    float translateThreshold;
+    [SerializeField]
+    float rotationThreshold;
+    [SerializeField]
+    int frameCountThreshold;
+    [SerializeField]
+    GameObject gestureRegionContainer;
+    [SerializeField]
+    GameObject gestureRegionObject;
     // Start is called before the first frame update
     void Start()
     {
@@ -61,6 +74,9 @@ public class LoadList : MonoBehaviour
             simulator.SetHandTrackingData(data);
             simulator.RenderFrame(0);
             SetupSlider(data);
+            SetupGestureRegions();
+            frameSlider.value = 0;
+
             playButton.GetComponent<SimPlayPause>().SetPaused();
 
             frameSlider.interactable = true;
@@ -73,10 +89,11 @@ public class LoadList : MonoBehaviour
             {
                 btn.interactable = true;
             }
-            startMarker.GetComponent<Image>().enabled = false;
-            startMarker.frame = 0;
-            endMarker.GetComponent<Image>().enabled = false;
-            endMarker.frame = (data.endFrame - data.startFrame) - 1;
+            //startMarker.GetComponent<Image>().enabled = false;
+            //startMarker.frame = 0;
+            //endMarker.GetComponent<Image>().enabled = false;
+            //endMarker.frame = (data.endFrame - data.startFrame) - 1;
+            
         }
         else
         {
@@ -90,4 +107,93 @@ public class LoadList : MonoBehaviour
         var simSlider = frameSlider.gameObject.GetComponent<SimFrameSlider>();
         simSlider.NewSliderBounds(dat.startFrame, dat.endFrame);
     }
+
+    void SetupGestureRegions()
+    {
+        foreach(Transform obj in gestureRegionContainer.transform)
+        {
+            Destroy(obj.gameObject);
+        }
+
+        GestureRegion currentGestReg = null;
+        GestureRegion prevGestReg = null;
+        Queue<bool> frameHistory = new Queue<bool>();
+        for(int i = 0; i < frameCountThreshold; i++)
+        {
+            frameHistory.Enqueue(false);
+        }
+
+        for(int i = 0; i <= frameSlider.maxValue; i++)
+        {
+            frameHistory.Enqueue(IsFrameMoving(i));
+            frameHistory.Dequeue();
+
+            bool allTrue = !frameHistory.Contains(false);
+
+            bool allFalse = !frameHistory.Contains(true);
+
+            if (allTrue)
+            {
+                if(currentGestReg == null)
+                {
+                    var newObj = Instantiate(gestureRegionObject, gestureRegionContainer.transform);
+                    currentGestReg = newObj.GetComponent<GestureRegion>();
+                    currentGestReg.prevRegion = prevGestReg;
+                    if(prevGestReg != null)
+                    {
+                        prevGestReg.nextRegion = currentGestReg;
+                    }
+                    
+                    currentGestReg.frameSlider = frameSlider;
+                    foreach(FrameMarker marker in currentGestReg.GetComponentsInChildren<FrameMarker>())
+                    {
+                        marker.frameSlider = frameSlider;
+                        marker.sliderRect = sliderHandle;
+                        marker.rectTrans = marker.GetComponent<RectTransform>();
+                    }
+                    currentGestReg.SetStartFrame(i - frameCountThreshold);
+                }
+            } else if(allFalse)
+            {
+                if(currentGestReg != null)
+                {
+                    currentGestReg.SetEndFrame(i - frameCountThreshold);
+                    prevGestReg = currentGestReg;
+                    currentGestReg = null;
+                }
+            }
+        }
+
+        if(currentGestReg != null)
+        {
+            currentGestReg.UpdateEndFrame((int)frameSlider.maxValue);
+        }
+    }
+
+    bool IsFrameMoving(int frame)
+    {
+        int internalFrame = frame % (simulator.data.endFrame - simulator.data.startFrame) + simulator.data.startFrame;
+        foreach (Simulator.TrackingPoint point in simulator.trackingPoints)
+        {
+            string key = HandTrackingData.EnumsToString(point.hand, point.finger, point.joint);
+
+            var velocity = ((Vector3)simulator.data.positionData[key][internalFrame] - (Vector3)simulator.data.positionData[key][internalFrame - 1]).magnitude / Time.fixedDeltaTime;
+
+            if(velocity > translateThreshold)
+            {
+                return true;
+            }
+
+            var rotAngle = Quaternion.Angle((Quaternion)simulator.data.rotationData[key][internalFrame], (Quaternion)simulator.data.rotationData[key][internalFrame]);
+
+            if(rotAngle > rotationThreshold)
+            {
+                return true;
+            }
+
+        }
+
+        return false;
+    }
+
 }

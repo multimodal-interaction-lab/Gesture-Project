@@ -22,12 +22,14 @@ public class GestureRegion : MonoBehaviour
     RectTransform startMarkTrans;
     RectTransform endMarkTrans;
     bool isValid;
-    void Start()
+    void Awake()
     {
         isValid = true;
         imageRectTrans = imageObj.GetComponent<RectTransform>();
         startMarkTrans = startMark.GetComponent<RectTransform>();
         endMarkTrans = endMark.GetComponent<RectTransform>();
+        startFrame = 0;
+        endFrame = int.MaxValue;
     }
 
     // Update is called once per frame
@@ -62,6 +64,20 @@ public class GestureRegion : MonoBehaviour
         frame = (int)Mathf.Clamp(frame, startFrame + 1, (nextRegion == null ? frameSlider.maxValue : nextRegion.startFrame - 1));
         endFrame = frame;
         endMark.frame = endFrame;
+    }
+
+    public void SetStartFrame(int frame)
+    {
+        startFrame = frame;
+        startMark.frame = startFrame;
+        startMark.UpdatePos(frame);
+    }
+
+    public void SetEndFrame(int frame)
+    {
+        endFrame = frame;
+        endMark.frame = endFrame;
+        endMark.UpdatePos(frame);
     }
 
 }

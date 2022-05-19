@@ -30,7 +30,7 @@ public class SimPlayPause : MonoBehaviour
     {
         if (isPlaying)
         {
-            if(simSlider.value == simSlider.maxValue || (endMarker.GetComponent<Image>().enabled && (simSlider.value == endMarker.frame)))
+            if(simSlider.value == simSlider.maxValue /*|| (endMarker.GetComponent<Image>().enabled && (simSlider.value == endMarker.frame))*/)
             {
                 TogglePlayPause();
             } else
@@ -52,8 +52,10 @@ public class SimPlayPause : MonoBehaviour
             GetComponent<Image>().sprite = playGraphic;
         }
 
-        if(isPlaying && simSlider.value == simSlider.maxValue || (endMarker.GetComponent<Image>().enabled && (simSlider.value == endMarker.frame)))
+        if(isPlaying && simSlider.value == simSlider.maxValue /*|| (endMarker.GetComponent<Image>().enabled && (simSlider.value == endMarker.frame))*/)
         {
+            simSlider.value = 0;
+            /*
             if (!startMarker.GetComponent<Image>().enabled)
             {
                 simSlider.value = 0;
@@ -61,7 +63,7 @@ public class SimPlayPause : MonoBehaviour
             {
                 simSlider.value = startMarker.frame;
             }
-            
+            */
         }
     }
 

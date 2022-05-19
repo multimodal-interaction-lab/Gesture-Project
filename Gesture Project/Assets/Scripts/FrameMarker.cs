@@ -10,10 +10,10 @@ public class FrameMarker : MonoBehaviour, IDragHandler, IPointerDownHandler
     public int frame;
     public Slider frameSlider;
     public RectTransform sliderRect;
-    RectTransform rectTrans;
+    public RectTransform rectTrans;
 
 
-    private void Start()
+    private void Awake()
     {
         rectTrans = GetComponent<RectTransform>();
         gestRegion = GetComponentInParent<GestureRegion>();
@@ -37,6 +37,7 @@ public class FrameMarker : MonoBehaviour, IDragHandler, IPointerDownHandler
     public virtual void OnPointerDown(PointerEventData eventData)
     {
         frameSlider.value = frame;
+        //FindObjectOfType<SimPlayPause>().SetPaused();
     }
 
     public virtual void OnDrag(PointerEventData eventData)
@@ -61,5 +62,13 @@ public class FrameMarker : MonoBehaviour, IDragHandler, IPointerDownHandler
         }
 
         
+    }
+
+    public void UpdatePos(int newFrame)
+    {
+        var origVal = frameSlider.value;
+        frameSlider.value = newFrame;
+        rectTrans.position = sliderRect.position;
+        frameSlider.value = origVal;
     }
 }
