@@ -87,7 +87,15 @@ public class FileExport : MonoBehaviour
 
         int regionCount = 0;
 
-        foreach (GestureRegion region in gestureRegionContainer.GetComponentsInChildren<GestureRegion>())
+        //Find the first gesture region
+        GestureRegion region = gestureRegionContainer.GetComponentInChildren<GestureRegion>();
+        if (region == null)
+        {
+            yield return null;
+        }
+
+
+        do
         {
             string modifiedPath = path;
             if (gestureRegionContainer.GetComponentsInChildren<GestureRegion>().Length > 1)
@@ -124,7 +132,8 @@ public class FileExport : MonoBehaviour
             }
             stream.Close();
             regionCount++;
-        }
+            region = region.nextRegion;
+        } while (region != null);
 
 
 

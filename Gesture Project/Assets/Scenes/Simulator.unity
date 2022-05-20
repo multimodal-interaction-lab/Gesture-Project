@@ -2123,10 +2123,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   simSlider: {fileID: 521713067}
+  gestureRegionContainer: {fileID: 1820291821}
   playGraphic: {fileID: 21300000, guid: d42cfe7bed8439c439378d1a7e76f4e3, type: 3}
   pauseGraphic: {fileID: 21300000, guid: a1bda28f797f71c4db09f6a0d4af4759, type: 3}
-  startMarker: {fileID: 0}
-  endMarker: {fileID: 0}
 --- !u!1 &673368145
 GameObject:
   m_ObjectHideFlags: 0
