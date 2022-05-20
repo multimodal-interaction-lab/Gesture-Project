@@ -14,16 +14,23 @@ public class RegionButtonInteractivity : MonoBehaviour
     public Button addButton;
     public Button removeButton;
     public Button splitButton;
+    public Button clearButton;
 
 
+
+    private void Start()
+    {
+        UpdateInteractivity();
+    }
 
     public void UpdateInteractivity()
     {
-        if (overlay.activeInHierarchy)
+        if (overlay.activeInHierarchy || frameSlider.maxValue == 1f)
         {
             addButton.interactable = false;
             removeButton.interactable = false;
             splitButton.interactable = false;
+            clearButton.interactable = false;
             return;
         }
 
@@ -37,6 +44,7 @@ public class RegionButtonInteractivity : MonoBehaviour
             addButton.interactable = true;
             removeButton.interactable = false;
             splitButton.interactable = false;
+            clearButton.interactable = true;
             return;
         }
 
@@ -52,7 +60,8 @@ public class RegionButtonInteractivity : MonoBehaviour
             {
                 removeButton.interactable = true;
                 addButton.interactable = false;
-                if(currentFrame > existingRegion.startFrame && currentFrame < existingRegion.endFrame)
+                clearButton.interactable = true;
+                if (currentFrame > existingRegion.startFrame && currentFrame < existingRegion.endFrame)
                 {
                     splitButton.interactable = true;
                 } else
@@ -70,6 +79,7 @@ public class RegionButtonInteractivity : MonoBehaviour
         addButton.interactable = true;
         removeButton.interactable = false;
         splitButton.interactable = false;
+        clearButton.interactable = true;
 
 
     }
@@ -253,8 +263,14 @@ public class RegionButtonInteractivity : MonoBehaviour
         newGestReg.SetEndFrame(tempEnd);
 
 
+    }
 
-
+    public void ClearRegions()
+    {
+        foreach(Transform t in gestureRegionContainer)
+        {
+            Destroy(t.gameObject);
+        }
     }
 
 }
