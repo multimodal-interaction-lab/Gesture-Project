@@ -57,6 +57,7 @@ public class GestureRegion : MonoBehaviour
         frame = (int)Mathf.Clamp(frame, (prevRegion == null ? 0 : prevRegion.endFrame + 1), endFrame - 1);
         startFrame = frame;
         startMark.frame = startFrame;
+        startMark.UpdatePos(startFrame);
     }
 
     public void UpdateEndFrame(int frame)
@@ -64,20 +65,21 @@ public class GestureRegion : MonoBehaviour
         frame = (int)Mathf.Clamp(frame, startFrame + 1, (nextRegion == null ? frameSlider.maxValue : nextRegion.startFrame - 1));
         endFrame = frame;
         endMark.frame = endFrame;
+        endMark.UpdatePos(endFrame);
     }
 
     public void SetStartFrame(int frame)
     {
-        startFrame = frame;
+        startFrame = Mathf.Max(0,frame);
         startMark.frame = startFrame;
-        startMark.UpdatePos(frame);
+        startMark.UpdatePos(startFrame);
     }
 
     public void SetEndFrame(int frame)
     {
         endFrame = frame;
         endMark.frame = endFrame;
-        endMark.UpdatePos(frame);
+        endMark.UpdatePos(endFrame);
     }
 
 }

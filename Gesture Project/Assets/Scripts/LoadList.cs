@@ -166,7 +166,7 @@ public class LoadList : MonoBehaviour
 
         if(currentGestReg != null)
         {
-            currentGestReg.UpdateEndFrame((int)frameSlider.maxValue);
+            currentGestReg.SetEndFrame((int)frameSlider.maxValue);
         }
     }
 

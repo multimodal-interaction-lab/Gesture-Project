@@ -11,10 +11,16 @@ public class FileExport : MonoBehaviour
 {
     [SerializeField]
     TMP_InputField nameInput;
+    /*
     [SerializeField]
     FrameMarker startMarker;
     [SerializeField]
     FrameMarker endMarker;
+    */
+    [SerializeField]
+    Transform gestureRegionContainer;
+    [SerializeField]
+    GameObject overlay;
     [SerializeField]
     Simulator sim;
     [SerializeField]
@@ -49,7 +55,16 @@ public class FileExport : MonoBehaviour
 
     public void ExportFile()
     {
-        //exportButton.interactable = false;
+        StartCoroutine(ExportFeatureData());
+
+    }
+
+    IEnumerator ExportFeatureData()
+    {
+        overlay.SetActive(true);
+        var overlayText = overlay.GetComponentInChildren<TextMeshProUGUI>();
+        overlayText.text = "";
+        
         foreach (Selectable obj in canvasObj.GetComponentsInChildren<Selectable>())
         {
             obj.interactable = false;
@@ -57,9 +72,10 @@ public class FileExport : MonoBehaviour
         string defaultfileName = "gestureData";
         string fileNameInput = nameInput.text == "" ? defaultfileName : nameInput.text;
         string path = Application.dataPath + "/SimulatorOutput/" + fileNameInput + ".csv";
-       
+        string altpath = Application.dataPath + "/SimulatorOutput/" + fileNameInput + "-0.csv";
 
-        if (File.Exists(path))
+
+        if (File.Exists(path) || File.Exists(altpath))
         {
             int offset = 1;
             do
@@ -69,47 +85,59 @@ public class FileExport : MonoBehaviour
             } while (File.Exists(path));
         }
 
-        stream = new StreamWriter(path, false);
+        int regionCount = 0;
 
-
-        //Write the header
-        string headerToWrite = "";
-        headerToWrite += "Frame,";
-        foreach(Simulator.TrackingPoint point in sim.trackingPoints)
+        foreach (GestureRegion region in gestureRegionContainer.GetComponentsInChildren<GestureRegion>())
         {
-            headerToWrite += GetHeaderString(point.hand, point.finger, point.joint);
-            headerToWrite += ",";
+            string modifiedPath = path;
+            if (gestureRegionContainer.GetComponentsInChildren<GestureRegion>().Length > 1)
+            {
+                modifiedPath = path.Substring(0, path.IndexOf(".csv"));
+                modifiedPath += "-" + regionCount + ".csv";
+            }
+            overlayText.text = "Exporting " + modifiedPath + "...";
+            stream = new StreamWriter(modifiedPath, false);
+
+
+            //Write the header
+            string headerToWrite = "";
+            headerToWrite += "Frame,";
+            foreach (Simulator.TrackingPoint point in sim.trackingPoints)
+            {
+                headerToWrite += GetHeaderString(point.hand, point.finger, point.joint);
+                headerToWrite += ",";
+            }
+
+            headerToWrite = headerToWrite.TrimEnd(',');
+
+            stream.WriteLine(headerToWrite);
+
+
+            int frame = 0;
+
+            for (int i = region.startFrame; i <= (region.endFrame - region.startFrame) + region.startFrame; i++)
+            {
+                simSlider.value = i;
+                stream.WriteLine(frame + "," + GetDataString(i));
+                frame++;
+                yield return new WaitForFixedUpdate();
+            }
+            stream.Close();
+            regionCount++;
         }
 
-        headerToWrite = headerToWrite.TrimEnd(',');
-
-        stream.WriteLine(headerToWrite);
 
 
-        StartCoroutine(ExportFeatureData());
+
+
         
-
-    }
-
-    IEnumerator ExportFeatureData()
-    {
-        int frame = 0;
-        for (int i = startMarker.frame; i <= (endMarker.frame - startMarker.frame) + startMarker.frame; i++)
-        {
-            simSlider.value = i;
-            stream.WriteLine(frame + "," + GetDataString(i));
-            frame++;
-            yield return new WaitForFixedUpdate();
-        }
-
-
-
-
-        stream.Close();
-        foreach(Selectable obj in canvasObj.GetComponentsInChildren<Selectable>())
+        foreach (Selectable obj in canvasObj.GetComponentsInChildren<Selectable>())
         {
             obj.interactable = true;
         }
+        overlayText.text = "";
+        overlay.SetActive(false);
+
         //exportButton.interactable = true;
     }
 
