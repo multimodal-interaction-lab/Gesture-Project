@@ -74,7 +74,7 @@ public class LoadList : MonoBehaviour
             simulator.SetHandTrackingData(data);
             simulator.RenderFrame(0);
             SetupSlider(data);
-            SetupGestureRegions();
+            //SetupGestureRegions();
             frameSlider.value = 0;
 
             playButton.GetComponent<SimPlayPause>().SetPaused();
