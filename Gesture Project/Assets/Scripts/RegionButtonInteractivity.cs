@@ -332,6 +332,7 @@ public class RegionButtonInteractivity : MonoBehaviour
         {
             marker.frameSlider = frameSlider;
             marker.sliderRect = sliderHandle;
+            marker.sliderRect.anchoredPosition = new Vector2(marker.sliderRect.anchoredPosition.x, 0);
             marker.rectTrans = marker.GetComponent<RectTransform>();
             
         }

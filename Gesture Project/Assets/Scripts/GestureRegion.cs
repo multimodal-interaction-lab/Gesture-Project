@@ -9,6 +9,7 @@ public class GestureRegion : MonoBehaviour
     public GestureRegion nextRegion;
     public FrameMarker startMark;
     public FrameMarker endMark;
+    public List<Image> handleImages;
     public GameObject imageObj;
     public Slider frameSlider;
     public Color validColor;
@@ -49,6 +50,20 @@ public class GestureRegion : MonoBehaviour
         {
             imageObj.GetComponent<Image>().color = validColor;
             isValid = true;
+        }
+
+        if(deltaPos < 20)
+        {
+            foreach(Image img in handleImages)
+            {
+                img.enabled = false;
+            }
+        } else
+        {
+            foreach (Image img in handleImages)
+            {
+                img.enabled = true;
+            }
         }
 
     }

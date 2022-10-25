@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEditorInternal;
 using UnityEngine;
 
@@ -322,10 +323,12 @@ public class Simulator : MonoBehaviour
         newSphere.transform.localScale = new Vector3(jointRadius, jointRadius, jointRadius);
         newSphere = Instantiate(handSphere, transform.Find("Right/Palm/PalmPinky"));
         newSphere.transform.localScale = new Vector3(jointRadius, jointRadius, jointRadius);
+        newSphere.GetComponentInChildren<MeshRenderer>().material.color = Color.red;
         newSphere = Instantiate(handSphere, transform.Find("Left/Palm/PalmIndexThumb"));
         newSphere.transform.localScale = new Vector3(jointRadius, jointRadius, jointRadius);
         newSphere = Instantiate(handSphere, transform.Find("Right/Palm/PalmIndexThumb"));
         newSphere.transform.localScale = new Vector3(jointRadius, jointRadius, jointRadius);
+        newSphere.GetComponentInChildren<MeshRenderer>().material.color = Color.red;
     }
 
     void GenerateSphere(TrackingPoint origin)
@@ -337,6 +340,10 @@ public class Simulator : MonoBehaviour
         } else
         {
             newSphere.transform.localScale = new Vector3(jointRadius, jointRadius, jointRadius);
+        }
+        if(origin.hand == HandTrackingData.Hand.Right)
+        {
+            newSphere.GetComponentInChildren<MeshRenderer>().material.color = Color.red;
         }
     }
 

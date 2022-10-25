@@ -67,6 +67,19 @@ public class SimFrameSlider : MonoBehaviour
 
     }
 
+    public void ResetZoom()
+    {
+        if (MIN_WIDTH != rectTrans.sizeDelta.x)
+        {
+            rectTrans.sizeDelta = new Vector2(MIN_WIDTH, rectTrans.sizeDelta.y);
+            foreach (GestureRegion reg in gestureRegionContainer.GetComponentsInChildren<GestureRegion>())
+            {
+                reg.Rebuild();
+            }
+            LayoutRebuilder.MarkLayoutForRebuild(transform as RectTransform);
+        }
+    }
+
    
     private bool IsPointerOverThis(List<RaycastResult> eventSystemRaycastResults)
     {
