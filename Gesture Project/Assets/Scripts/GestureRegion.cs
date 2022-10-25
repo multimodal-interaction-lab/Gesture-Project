@@ -20,6 +20,7 @@ public class GestureRegion : MonoBehaviour
 
     RectTransform imageRectTrans;
     RectTransform startMarkTrans;
+
     RectTransform endMarkTrans;
     bool isValid;
     void Awake()

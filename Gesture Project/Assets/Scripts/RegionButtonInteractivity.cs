@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -11,18 +12,144 @@ public class RegionButtonInteractivity : MonoBehaviour
     public RectTransform sliderHandle;
     public GameObject gestureRegionObj;
 
+    /*
     public Button addButton;
     public Button removeButton;
     public Button splitButton;
+     */
     public Button clearButton;
+  
+    [SerializeField]
+    public GameObject noRegionMenu;
+    [SerializeField]
+    public GameObject regionMenu;
 
+    [SerializeField]
+    public TMP_InputField startText;
+    public TMP_InputField endText;
+
+    GestureRegion selectedRegion;
+
+    bool editingRegion;
 
 
     private void Start()
     {
+        editingRegion = false;
+    }
+    private void Update()
+    {
         UpdateInteractivity();
+        if(!editingRegion && selectedRegion != null)
+        {
+            startText.text = selectedRegion.startFrame.ToString();
+            endText.text = selectedRegion.endFrame.ToString();
+        }
     }
 
+    public void UpdateInteractivity()
+    {
+        if (overlay.activeInHierarchy || frameSlider.maxValue == 1f)
+        {
+            noRegionMenu.SetActive(false);
+            regionMenu.SetActive(false);
+            selectedRegion = null;
+            clearButton.interactable = false;
+  
+            return;
+        }
+        clearButton.interactable = true;
+
+        int currentFrame = (int)frameSlider.value;
+
+        //Find the first gesture region
+        GestureRegion existingRegion = gestureRegionContainer.GetComponentInChildren<GestureRegion>();
+        if (existingRegion == null)
+        {
+            noRegionMenu.SetActive(true);
+            regionMenu.SetActive(false);
+            selectedRegion = null;
+            return;
+        }
+
+        while (existingRegion.prevRegion != null)
+        {
+            existingRegion = existingRegion.prevRegion;
+        }
+
+        do
+        {
+            //If region is hovered
+            if (currentFrame >= existingRegion.startFrame && currentFrame <= existingRegion.endFrame)
+            {
+                noRegionMenu.SetActive(false);
+                regionMenu.SetActive(true);
+                if(selectedRegion != existingRegion)
+                {
+                    selectedRegion = existingRegion;
+                    startText.text = selectedRegion.startFrame.ToString();
+                    endText.text = selectedRegion.endFrame.ToString();
+                }
+               
+                
+                
+                return;
+            }
+
+
+            existingRegion = existingRegion.nextRegion;
+        } while (existingRegion != null);
+
+        //No region hovered
+        noRegionMenu.SetActive(true);
+        regionMenu.SetActive(false);
+        selectedRegion = null;
+
+    }
+
+    public void SelectedField()
+    {
+        editingRegion = true;
+    }
+
+    public void DeselectedField()
+    {
+        editingRegion = false;
+    }
+
+    public void UpdateStartFrame(string input)
+    {
+        if(selectedRegion == null)
+        {
+            return;
+        }
+        int newFrame = int.Parse(input);
+        if (newFrame != selectedRegion.startFrame)
+        {
+            selectedRegion.UpdateStartFrame(newFrame);
+            endText.text = selectedRegion.endFrame.ToString();
+        }
+        frameSlider.value = Mathf.Max(selectedRegion.startFrame, frameSlider.value);
+
+    }
+
+    public void UpdateEndFrame(string input)
+    {
+        if (selectedRegion == null)
+        {
+            return;
+        }
+        int newFrame = int.Parse(input);
+        if (newFrame != selectedRegion.endFrame)
+        {
+            selectedRegion.UpdateEndFrame(newFrame);
+            endText.text = selectedRegion.endFrame.ToString();
+        }
+        frameSlider.value = Mathf.Min(selectedRegion.endFrame, frameSlider.value);
+
+    }
+
+    /* Old version- using the Add, Delete, Split Buttons
     public void UpdateInteractivity()
     {
         if (overlay.activeInHierarchy || frameSlider.maxValue == 1f)
@@ -83,7 +210,7 @@ public class RegionButtonInteractivity : MonoBehaviour
 
 
     }
-
+    */
     public GestureRegion GetHoveredRegion()
     {
         int currentFrame = (int)frameSlider.value;
@@ -217,18 +344,19 @@ public class RegionButtonInteractivity : MonoBehaviour
     {
         int currentFrame = (int)frameSlider.value;
 
-        var hoveredRegion = GetHoveredRegion();
-        if(hoveredRegion.prevRegion != null)
+
+        if(selectedRegion.prevRegion != null)
         {
-            hoveredRegion.prevRegion.nextRegion = hoveredRegion.nextRegion;
+            selectedRegion.prevRegion.nextRegion = selectedRegion.nextRegion;
         }
 
-        if(hoveredRegion.nextRegion != null)
+        if(selectedRegion.nextRegion != null)
         {
-            hoveredRegion.nextRegion.prevRegion = hoveredRegion.prevRegion;
+            selectedRegion.nextRegion.prevRegion = selectedRegion.prevRegion;
         }
 
-        Destroy(hoveredRegion.gameObject);
+        Destroy(selectedRegion.gameObject);
+        selectedRegion = null;
 
     }
 
