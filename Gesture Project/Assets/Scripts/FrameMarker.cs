@@ -71,4 +71,5 @@ public class FrameMarker : MonoBehaviour, IDragHandler, IPointerDownHandler
         rectTrans.position = sliderRect.position;
         frameSlider.value = origVal;
     }
+
 }

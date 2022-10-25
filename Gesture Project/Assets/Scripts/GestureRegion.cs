@@ -81,5 +81,11 @@ public class GestureRegion : MonoBehaviour
         endMark.frame = endFrame;
         endMark.UpdatePos(endFrame);
     }
+    
+    public void Rebuild()
+    {
+        startMark.UpdatePos(startFrame);
+        endMark.UpdatePos(endFrame);
+    }
 
 }

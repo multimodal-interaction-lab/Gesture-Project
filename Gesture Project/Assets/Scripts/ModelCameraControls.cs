@@ -16,8 +16,8 @@ public class ModelCameraControls : MonoBehaviour
 
     float zoomLevel;
 
-    const float MIN_ZOOM = .08f;
-    const float MAX_ZOOM = .4f;
+    const float MIN_ZOOM = .2f;
+    const float MAX_ZOOM = .6f;
 
     bool isDragging;
     Vector3 rotXAxis;
@@ -28,7 +28,7 @@ public class ModelCameraControls : MonoBehaviour
     void Start()
     {
         cam = GetComponent<Camera>();
-        zoomLevel = .25f;
+        zoomLevel = .4f;
     }
 
     // Update is called once per frame

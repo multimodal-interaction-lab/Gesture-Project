@@ -9,7 +9,9 @@ public class SimPlayPause : MonoBehaviour
     Slider simSlider;
 
     [SerializeField]
-    Transform gestureRegionContainer;
+    Simulator simulator;
+
+
 
     [SerializeField]
     Sprite playGraphic;
@@ -17,33 +19,28 @@ public class SimPlayPause : MonoBehaviour
     Sprite pauseGraphic;
 
 
-    bool isPlaying;
+    bool IsPlaying
+    {
+        get { return simulator.isPlaying; }
+        set { simulator.isPlaying = value; }
+    }
 
     private void Start()
     {
-        isPlaying = false;
+        IsPlaying = false;
     }
 
 
     private void FixedUpdate()
     {
-        if (isPlaying)
-        {
-            if(simSlider.value == simSlider.maxValue || (GetHoveredRegion() != null && simSlider.value == GetHoveredRegion().endFrame))
-            {
-                SetPaused();
-            } else
-            {
-                simSlider.value++;
-            }
-        }    
+
     }
 
 
     public void TogglePlayPause()
     {
-        isPlaying = !isPlaying;
-        if (isPlaying)
+        IsPlaying = !IsPlaying;
+        if (IsPlaying)
         {
             GetComponent<Image>().sprite = pauseGraphic;
         } else
@@ -51,9 +48,9 @@ public class SimPlayPause : MonoBehaviour
             GetComponent<Image>().sprite = playGraphic;
         }
 
-        if(isPlaying && simSlider.value == simSlider.maxValue || (GetHoveredRegion() != null && simSlider.value == GetHoveredRegion().endFrame))
+        if(IsPlaying && simSlider.value == simSlider.maxValue || (simulator.GetHoveredRegion() != null && simSlider.value == simulator.GetHoveredRegion().endFrame))
         {
-            var region = GetHoveredRegion();
+            var region = simulator.GetHoveredRegion();
             if (region == null)
             {
                 simSlider.value = 0;
@@ -68,40 +65,10 @@ public class SimPlayPause : MonoBehaviour
 
     public void SetPaused()
     {
-        isPlaying = false;
+        IsPlaying = false;
         GetComponent<Image>().sprite = playGraphic;
     }
 
 
-    public GestureRegion GetHoveredRegion()
-    {
-        int currentFrame = (int)simSlider.value;
-        //Find the first gesture region
-        GestureRegion existingRegion = gestureRegionContainer.GetComponentInChildren<GestureRegion>();
-        if (existingRegion == null)
-        {
-            return null;
-        }
-
-        while (existingRegion.prevRegion != null)
-        {
-            existingRegion = existingRegion.prevRegion;
-        }
-
-        do
-        {
-            //If region is hovered
-            if (currentFrame >= existingRegion.startFrame && currentFrame <= existingRegion.endFrame)
-            {
-                return existingRegion;
-            }
-
-
-            existingRegion = existingRegion.nextRegion;
-        } while (existingRegion != null);
-
-        //No region hovered
-        return null;
-
-    }
+   
 }

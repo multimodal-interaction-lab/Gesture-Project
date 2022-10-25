@@ -1,15 +1,46 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class Simulator : MonoBehaviour
 {
+    public SimFrameSlider simSlider;
+    public SimPlayPause pauseButton;
+
     public GameObject handCylinder;
     public GameObject handSphere;
     public float jointRadius;
     public float palmRadius;
     int currentFrame;
     public HandTrackingData data;
+    bool dataLoaded;
+
+    [SerializeField]
+    Transform gestureRegionContainer;
+
+    public List<KeyCode> pauseKeys;
+
+    public List<KeyCode> forwardKeys;
+    public List<KeyCode> backKeys;
+
+    public List<KeyCode> mod5Keys;
+    public List<KeyCode> mod10Keys;
+
+    const float KEY_HOLD_DELAY = .5f;
+
+    bool forwardPressed;
+    bool backPressed;
+    bool pausePressed;
+
+    float timeForwardPressed;
+    float timeBackwardPressed;
+
+    enum Direction { Forward, Backward, None }
+
+    Direction frameAdjustDir;
+    int modLevel;
+
 
     public bool isPlaying;
 
@@ -38,21 +69,141 @@ public class Simulator : MonoBehaviour
         }
         GenerateNonTrackedCylinders();
         GenerateNonTrackedSpheres();
+        dataLoaded = false;
+        forwardPressed = false;
+        backPressed = false;
+        pausePressed = false;
+    }
+
+    private void Update()
+    {
+        if (dataLoaded)
+        {
+            HandleInputs();
+
+           
+        }
+
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
+
+        if (pausePressed)
+        {
+            pauseButton.TogglePlayPause();
+            pausePressed = false;
+        }
+
         if (isPlaying)
         {
-            RenderFrame(currentFrame);
-            currentFrame++;
+            if (simSlider.slider.value == simSlider.slider.maxValue || (GetHoveredRegion() != null && simSlider.slider.value == GetHoveredRegion().endFrame))
+            {
+                pauseButton.SetPaused();
+            }
+            else
+            {
+                simSlider.slider.value++;
+            }
+        } else
+        {
+         
+            if (!dataLoaded)
+            {
+                return;
+            }
+            switch (frameAdjustDir)
+            {
+                case Direction.Forward:
+                    simSlider.slider.value = Mathf.Min(simSlider.slider.value + modLevel, (data.endFrame - data.startFrame));
+                    break;
+                case Direction.Backward:
+                    simSlider.slider.value = Mathf.Max(simSlider.slider.value - modLevel, 0);
+                    break;
+                default:
+                    break;
+            }
+          
         }
-        
+        forwardPressed = false;
+        backPressed = false;
+
+    }
+
+    public void HandleInputs()
+    {
+
+        frameAdjustDir = Direction.None;
+        foreach(KeyCode kc in forwardKeys)
+        {
+
+            if (Input.GetKeyDown(kc))
+            {
+                forwardPressed = true;
+                timeForwardPressed = Time.time;
+            } else if(Input.GetKey(kc) && Time.time - timeForwardPressed > KEY_HOLD_DELAY)
+            {
+                forwardPressed = true;
+            }
+        }
+
+        foreach (KeyCode kc in backKeys)
+        {
+
+            if (Input.GetKeyDown(kc))
+            {
+                backPressed = true;
+                timeBackwardPressed = Time.time;
+            }
+            else if (Input.GetKey(kc) && Time.time - timeBackwardPressed > KEY_HOLD_DELAY)
+            {
+                backPressed = true;
+            }
+        }
+
+        if((forwardPressed && backPressed) || (!forwardPressed && !backPressed))
+        {
+            frameAdjustDir = Direction.None;
+        } else if (forwardPressed)
+        {
+            frameAdjustDir = Direction.Forward;
+        } else
+        {
+            frameAdjustDir = Direction.Backward;
+        }
+
+        modLevel = 1;
+
+        foreach (KeyCode kc in mod5Keys)
+        {
+            if (Input.GetKey(kc))
+            {
+                modLevel = 5;
+            }
+        }
+
+
+        foreach (KeyCode kc in mod10Keys)
+        {
+            if (Input.GetKey(kc))
+            {
+                modLevel = 10;
+            }
+        }
+
+        foreach (KeyCode kc in pauseKeys)
+        {
+            if (Input.GetKeyDown(kc))
+            {
+                pausePressed = true;
+            }
+        }
     }
 
     public void RenderFrame(int frame)
     {
+        simSlider.slider.value = frame;
         if(currentFrame != frame)
         {
             currentFrame = frame;
@@ -206,10 +357,43 @@ public class Simulator : MonoBehaviour
     public void SetHandTrackingData(HandTrackingData data)
     {
         this.data = data;
+        dataLoaded = true;
     }
 
     public HandTrackingData GetHandTrackingData()
     {
         return data;
+    }
+
+    public GestureRegion GetHoveredRegion()
+    {
+        int currentFrame = (int)simSlider.slider.value;
+        //Find the first gesture region
+        GestureRegion existingRegion = gestureRegionContainer.GetComponentInChildren<GestureRegion>();
+        if (existingRegion == null)
+        {
+            return null;
+        }
+
+        while (existingRegion.prevRegion != null)
+        {
+            existingRegion = existingRegion.prevRegion;
+        }
+
+        do
+        {
+            //If region is hovered
+            if (currentFrame >= existingRegion.startFrame && currentFrame <= existingRegion.endFrame)
+            {
+                return existingRegion;
+            }
+
+
+            existingRegion = existingRegion.nextRegion;
+        } while (existingRegion != null);
+
+        //No region hovered
+        return null;
+
     }
 }

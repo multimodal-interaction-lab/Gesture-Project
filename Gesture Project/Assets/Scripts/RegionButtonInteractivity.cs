@@ -210,8 +210,7 @@ public class RegionButtonInteractivity : MonoBehaviour
         }
         currentGestReg.SetStartFrame(currentFrame);
         currentGestReg.SetEndFrame(currentFrame);
-        currentGestReg.UpdateStartFrame(currentFrame - 10);
-        currentGestReg.UpdateEndFrame(currentFrame + 10);
+        currentGestReg.UpdateEndFrame(currentFrame + 50);
     }
 
     public void DeleteRegion()
