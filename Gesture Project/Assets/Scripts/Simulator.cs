@@ -44,6 +44,7 @@ public class Simulator : MonoBehaviour
 
 
     public bool isPlaying;
+    public bool isRecorder;
 
 
     [System.Serializable]
@@ -78,7 +79,7 @@ public class Simulator : MonoBehaviour
 
     private void Update()
     {
-        if (dataLoaded)
+        if (dataLoaded && !isRecorder)
         {
             HandleInputs();
 
@@ -90,6 +91,12 @@ public class Simulator : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (isRecorder)
+        {
+            currentFrame++;
+            RenderFrame(currentFrame);
+            return;
+        }
 
         if (pausePressed)
         {
@@ -204,11 +211,18 @@ public class Simulator : MonoBehaviour
 
     public void RenderFrame(int frame)
     {
-        simSlider.slider.value = frame;
-        if(currentFrame != frame)
+        if (isRecorder)
         {
-            currentFrame = frame;
+            frame = currentFrame;
         }
+        else {
+            simSlider.slider.value = frame;
+            if (currentFrame != frame)
+            {
+                currentFrame = frame;
+            }
+        }
+        
         int frameToRender = frame % (data.endFrame - data.startFrame) + data.startFrame;
         foreach(TrackingPoint point in trackingPoints)
         {
